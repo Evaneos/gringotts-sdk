@@ -3,9 +3,7 @@
 namespace Evaneos\Test\Gringotts\SDK;
 
 use Evaneos\Gringotts\SDK\GringottsClient;
-use GuzzleHttp\Client;
-use Phake;
-use Psr\Http\Message\ResponseInterface;
+use Ramsey\Uuid\Uuid;
 
 class GringottsClientTest extends \PHPUnit_Framework_TestCase
 {
@@ -13,26 +11,14 @@ class GringottsClientTest extends \PHPUnit_Framework_TestCase
      * @var GringottsClient
      */
     private $gringottsClient;
-    private $guzzleClient;
 
     public function setUp()
     {
-        $this->guzzleClient = Phake::mock(Client::class);
-        $this->gringottsClient = new GringottsClient($this->guzzleClient);
+        $this->gringottsClient = new GringottsClient();
     }
 
     public function testDoesPostWithCorrectParametersOnStore()
     {
-        $response = Phake::mock(ResponseInterface::class);
-
-        Phake::when($this->guzzleClient)->request(Phake::anyParameters())
-            ->thenReturn($response);
-
-        Phake::when($response)->getBody()
-            ->thenReturn('{"id": "fake-id"}');
-
-        $id = $this->gringottsClient->store('bonjour');
-
-        $this->assertEquals('fake-id', $id);
+        $this->assertTrue(Uuid::isValid($this->gringottsClient->store('bonjour.txt', 'bonjour')));
     }
 }
