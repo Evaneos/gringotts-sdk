@@ -19,6 +19,6 @@ class GringottsClientTest extends \PHPUnit_Framework_TestCase
 
     public function testDoesPostWithCorrectParametersOnStore()
     {
-        $this->assertTrue(Uuid::isValid($this->gringottsClient->store('bonjour.txt', 'bonjour')));
+        $this->assertTrue(Uuid::isValid($this->gringottsClient->store('', 'bonjour')));
     }
 }

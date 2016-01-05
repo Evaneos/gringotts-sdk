@@ -3,6 +3,7 @@
 namespace Evaneos\Gringotts\SDK;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use Psr\Http\Message\StreamInterface;
 
 class GringottsClient
@@ -47,10 +48,16 @@ class GringottsClient
      *
      * @param string $uuid The file uuid
      * @return StreamInterface The file stream
+     * @throws GringottsClientException
      */
     public function get($uuid)
     {
-        $response = $this->client->request('GET',"/{$uuid}");
+        try {
+            $response = $this->client->request('GET',"/{$uuid}");
+        } catch(ClientException $e) {
+            throw new GringottsClientException($e);
+        }
+        var_dump($response);
         return $response->getBody();
     }
 }
