@@ -2,21 +2,26 @@
 
 namespace Evaneos\Gringotts\SDK;
 
+use Evaneos\Gringotts\SDK\Exception\InvalidUuidException;
+use Evaneos\Gringotts\SDK\Exception\UnableToGetFileException;
+use Evaneos\Gringotts\SDK\Exception\UnableToStoreFileException;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\TransferException;
 use Psr\Http\Message\StreamInterface;
+use Ramsey\Uuid\Uuid;
 
 class GringottsClient
 {
-
     const BASE_URL = 'http://localhost:8000/';
+
     /**
      * @var Client
      */
-    private $client;
+    protected $client;
 
-    public function __construct()
+    public function __construct($endpoint = null)
     {
-        $this->client = new \GuzzleHttp\Client(['base_uri' => static::BASE_URL]);
+        $this->client = new Client(['base_uri' => $endpoint ?: static::BASE_URL]);
     }
 
     /**
@@ -25,21 +30,25 @@ class GringottsClient
      * @param $filename
      * @param string|resource|StreamInterface $data
      * @return string uuid of the stored file
+     * @throws UnableToStoreFileException
      */
     public function store($filename, $data)
     {
-        $response = $this->client->request('POST','/', [
-            'multipart' => [
-                [
-                    'name' => 'file',
-                    'filename' => $filename,
-                    'contents' => $data
+        try {
+            $response = $this->client->request('POST','/', [
+                'multipart' => [
+                    [
+                        'name' => 'file',
+                        'filename' => $filename,
+                        'contents' => $data
+                    ]
                 ]
-            ]
-        ]);
+            ]);
 
-        return json_decode($response->getBody(), true)['id'];
-
+            return json_decode($response->getBody(), true)['id'];
+        } catch(TransferException $e) {
+            throw new UnableToStoreFileException($e);
+        }
     }
 
     /**
@@ -47,10 +56,21 @@ class GringottsClient
      *
      * @param string $uuid The file uuid
      * @return StreamInterface The file stream
+     * @throws InvalidUuidException
+     * @throws UnableToGetFileException
      */
     public function get($uuid)
     {
-        $response = $this->client->request('GET',"/{$uuid}");
-        return $response->getBody();
+        try {
+            if(!Uuid::isValid($uuid)) {
+                throw new InvalidUuidException($uuid);
+            }
+
+            $response = $this->client->request('GET', "/{$uuid}");
+
+            return $response->getBody();
+        } catch(TransferException $e) {
+            throw new UnableToGetFileException(Uuid::fromString($uuid), $e);
+        }
     }
 }
