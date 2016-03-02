@@ -2,6 +2,7 @@
 
 namespace Evaneos\Gringotts\SDK;
 
+use Evaneos\Gringotts\SDK\Exception\InvalidStoreResponseException;
 use Evaneos\Gringotts\SDK\Exception\InvalidUuidException;
 use Evaneos\Gringotts\SDK\Exception\UnableToGetFileException;
 use Evaneos\Gringotts\SDK\Exception\UnableToStoreFileException;
@@ -30,12 +31,13 @@ class GringottsClient
      * @param $filename
      * @param string|resource|StreamInterface $data
      * @return string uuid of the stored file
+     * @throws InvalidStoreResponseException
      * @throws UnableToStoreFileException
      */
     public function store($filename, $data)
     {
         try {
-            $response = $this->client->request('POST','/', [
+            $response = $this->client->request('POST', '/', [
                 'multipart' => [
                     [
                         'name' => 'file',
@@ -45,7 +47,17 @@ class GringottsClient
                 ]
             ]);
 
-            return json_decode($response->getBody(), true)['id'];
+            $body = json_decode($response->getBody(), true);
+
+            if($body === null) {
+                throw InvalidStoreResponseException::invalidResponse();
+            }
+
+            if(!array_key_exists('id', $body)) {
+                throw InvalidStoreResponseException::missingField('id');
+            }
+
+            return $body['id'];
         } catch(TransferException $e) {
             throw new UnableToStoreFileException($e);
         }
