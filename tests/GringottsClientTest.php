@@ -11,13 +11,13 @@ use Ramsey\Uuid\Uuid;
 class GringottsClientTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var GringottsClient
+     * @var GringottsTestClient
      */
     private $gringottsClient;
 
     public function setUp()
     {
-        $this->gringottsClient = new GringottsClient();
+        $this->gringottsClient = new GringottsTestClient();
     }
 
     public function testReturnsUuidOnSucessfulStoreResponse()
