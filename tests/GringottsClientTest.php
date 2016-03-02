@@ -50,6 +50,40 @@ class GringottsClientTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedExceptionMessage The API response is invalid
+     * @expectedException \Evaneos\Gringotts\SDK\Exception\InvalidStoreResponseException
+     */
+    public function testThrowsExceptionWhenStoreReponseIsInvalid()
+    {
+        $this->gringottsClient->setClient(
+            new Client([
+                'handler' => new MockHandler([
+                    new Response(200, [], '')
+                ])
+            ])
+        );
+
+        $this->gringottsClient->store('toto.txt', 'bonjour');
+    }
+
+    /**
+     * @expectedExceptionMessage Missing field id
+     * @expectedException \Evaneos\Gringotts\SDK\Exception\InvalidStoreResponseException
+     */
+    public function testThrowsExceptionWhenStoreReponseIsMissingTheIdField()
+    {
+        $this->gringottsClient->setClient(
+            new Client([
+                'handler' => new MockHandler([
+                    new Response(200, [], '{}')
+                ])
+            ])
+        );
+
+        $this->gringottsClient->store('toto.txt', 'bonjour');
+    }
+
+    /**
      * @expectedException \Evaneos\Gringotts\SDK\Exception\UnableToStoreFileException
      */
     public function testThrowsExceptionOnGuzzleTransferExceptionOnStore()
