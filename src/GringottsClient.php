@@ -28,20 +28,18 @@ class GringottsClient
     /**
      * Store a file into Gringotts.
      *
-     * @param $filename
      * @param string|resource|StreamInterface $data
      * @return string uuid of the stored file
      * @throws InvalidStoreResponseException
      * @throws UnableToStoreFileException
      */
-    public function store($filename, $data)
+    public function store($data)
     {
         try {
             $response = $this->client->request('POST', '/', [
                 'multipart' => [
                     [
                         'name' => 'file',
-                        'filename' => $filename,
                         'contents' => $data
                     ]
                 ]
