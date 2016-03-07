@@ -17,7 +17,7 @@ class GringottsClientTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->gringottsClient = new GringottsTestClient();
+        $this->gringottsClient = new GringottsTestClient('http://fake-endpoint');
     }
 
     public function testReturnsUuidOnSucessfulStoreResponse()

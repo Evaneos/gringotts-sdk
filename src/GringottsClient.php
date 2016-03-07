@@ -13,16 +13,14 @@ use Ramsey\Uuid\Uuid;
 
 class GringottsClient
 {
-    const BASE_URL = 'http://localhost:8000/';
-
     /**
      * @var Client
      */
     protected $client;
 
-    public function __construct($endpoint = null)
+    public function __construct($endpoint)
     {
-        $this->client = new Client(['base_uri' => $endpoint ?: static::BASE_URL]);
+        $this->client = new Client(['base_uri' => $endpoint]);
     }
 
     /**
