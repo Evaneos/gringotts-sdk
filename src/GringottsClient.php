@@ -33,8 +33,8 @@ class GringottsClient
      */
     public function store($data)
     {
-        try {
-            $response = $this->client->request('POST', '/', [
+        return $this->processRequest(function() use($data) {
+            return $this->client->request('POST', "/", [
                 'multipart' => [
                     [
                         'name' => 'file',
@@ -42,6 +42,27 @@ class GringottsClient
                     ]
                 ]
             ]);
+        });
+    }
+
+    public function storeWithId($id, $data)
+    {
+        return $this->processRequest(function() use($id, $data) {
+            return $this->client->request('PUT', "/{$id}", [
+                'multipart' => [
+                    [
+                        'name' => 'file',
+                        'contents' => $data
+                    ]
+                ]
+            ]);
+        });
+    }
+
+    private function processRequest(callable $request)
+    {
+        try {
+            $response = $request();
 
             $body = json_decode($response->getBody(), true);
 

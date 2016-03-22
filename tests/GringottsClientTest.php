@@ -30,7 +30,20 @@ class GringottsClientTest extends \PHPUnit_Framework_TestCase
             ])
         );
 
-        $this->assertTrue(Uuid::isValid($this->gringottsClient->store('toto.txt', 'bonjour')));
+        $this->assertTrue(Uuid::isValid($this->gringottsClient->store('bonjour')));
+    }
+
+    public function testReturnsUuidOnSucessfulStoreWithIdResponse()
+    {
+        $this->gringottsClient->setClient(
+            new Client([
+                'handler' => new MockHandler([
+                    new Response(200, [], '{ "id": "9F3D2722-D454-41DA-85B7-94A9C6222126" }')
+                ])
+            ])
+        );
+
+        $this->assertTrue(Uuid::isValid($this->gringottsClient->storeWithId('9F3D2722-D454-41DA-85B7-94A9C6222126', 'bonjour')));
     }
 
     public function testReturnsResponseBodyOnSucessfulGetResponse()
@@ -63,7 +76,7 @@ class GringottsClientTest extends \PHPUnit_Framework_TestCase
             ])
         );
 
-        $this->gringottsClient->store('toto.txt', 'bonjour');
+        $this->gringottsClient->store('bonjour');
     }
 
     /**
@@ -80,7 +93,7 @@ class GringottsClientTest extends \PHPUnit_Framework_TestCase
             ])
         );
 
-        $this->gringottsClient->store('toto.txt', 'bonjour');
+        $this->gringottsClient->store('bonjour');
     }
 
     /**
@@ -96,7 +109,57 @@ class GringottsClientTest extends \PHPUnit_Framework_TestCase
             ])
         );
 
-        $this->gringottsClient->store('toto.txt', 'bonjour');
+        $this->gringottsClient->store('bonjour');
+    }
+
+    /**
+     * @expectedExceptionMessage The API response is invalid
+     * @expectedException \Evaneos\Gringotts\SDK\Exception\InvalidStoreResponseException
+     */
+    public function testThrowsExceptionWhenStoreWithIdReponseIsInvalid()
+    {
+        $this->gringottsClient->setClient(
+            new Client([
+                'handler' => new MockHandler([
+                    new Response(200, [], '')
+                ])
+            ])
+        );
+
+        $this->gringottsClient->storeWithId('9F3D2722-D454-41DA-85B7-94A9C6222126', 'bonjour');
+    }
+
+    /**
+     * @expectedExceptionMessage Missing field id
+     * @expectedException \Evaneos\Gringotts\SDK\Exception\InvalidStoreResponseException
+     */
+    public function testThrowsExceptionWhenStoreWithIdReponseIsMissingTheIdField()
+    {
+        $this->gringottsClient->setClient(
+            new Client([
+                'handler' => new MockHandler([
+                    new Response(200, [], '{}')
+                ])
+            ])
+        );
+
+        $this->gringottsClient->storeWithId('9F3D2722-D454-41DA-85B7-94A9C6222126', 'bonjour');
+    }
+
+    /**
+     * @expectedException \Evaneos\Gringotts\SDK\Exception\UnableToStoreFileException
+     */
+    public function testThrowsExceptionOnGuzzleTransferExceptionOnStoreWithId()
+    {
+        $this->gringottsClient->setClient(
+            new Client([
+                'handler' => new MockHandler([
+                    new TransferException()
+                ])
+            ])
+        );
+
+        $this->gringottsClient->storeWithId('9F3D2722-D454-41DA-85B7-94A9C6222126', 'bonjour');
     }
 
     /**
