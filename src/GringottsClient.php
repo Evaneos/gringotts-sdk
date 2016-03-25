@@ -38,7 +38,8 @@ class GringottsClient
                 'multipart' => [
                     [
                         'name' => 'file',
-                        'contents' => $data
+                        'contents' => $data,
+                        'filename' => 'file'
                     ]
                 ]
             ]);
