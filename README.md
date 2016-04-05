@@ -1,7 +1,7 @@
 # gringotts-sdk
 Evaneos assets storage SDK
 
-## Installation 
+## Installation
 
 In order to be up and running with the SDK you'll need to require it via composer
 
@@ -21,6 +21,13 @@ Gringotts SDK allows to store assets through different forms : String, [PHP reso
 $gringotts = new GringottsClient('http://your-gringotts-instance.com');
 
 $assetId = $gringotts->store('Some data as string');
+
+```
+
+You can even force your own uuid:
+
+```php
+$assetId = $gringotts->storeWithId('871CDC92-A75B-43E7-A38E-FC22AA5450CA', 'Some data as string');
 
 ```
 
