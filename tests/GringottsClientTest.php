@@ -2,6 +2,7 @@
 
 namespace Evaneos\Test\Gringotts\SDK;
 
+use Evaneos\Gringotts\SDK\Exception\UnableToDeleteFileException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Handler\MockHandler;
@@ -31,6 +32,35 @@ class GringottsClientTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertTrue(Uuid::isValid($this->gringottsClient->store('bonjour')));
+    }
+
+    public function testThrowsExceptionOnUnsuccesfulDeleteReponse()
+    {
+        $this->gringottsClient->setClient(
+            new Client([
+                'handler' => new MockHandler([
+                    new Response(404)
+                ])
+            ])
+        );
+
+        $this->setExpectedException(UnableToDeleteFileException::class);
+        $this->gringottsClient->delete('9F3D2722-D454-41DA-85B7-94A9C6222126');
+    }
+
+    public function testThrowsExceptionOnGuzzleTransferExceptionOnDelete()
+    {
+        $this->gringottsClient->setClient(
+            new Client([
+                'handler' => new MockHandler([
+                    new TransferException()
+                ])
+            ])
+        );
+
+        $this->setExpectedException(UnableToDeleteFileException::class);
+
+        $this->gringottsClient->delete('927FA8B5-927D-4278-BFD2-3E3C7199E677');
     }
 
     public function testReturnsUuidOnSucessfulStoreWithIdResponse()

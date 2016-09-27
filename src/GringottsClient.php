@@ -4,6 +4,7 @@ namespace Evaneos\Gringotts\SDK;
 
 use Evaneos\Gringotts\SDK\Exception\InvalidStoreResponseException;
 use Evaneos\Gringotts\SDK\Exception\InvalidUuidException;
+use Evaneos\Gringotts\SDK\Exception\UnableToDeleteFileException;
 use Evaneos\Gringotts\SDK\Exception\UnableToGetFileException;
 use Evaneos\Gringotts\SDK\Exception\UnableToStoreFileException;
 use GuzzleHttp\Client;
@@ -86,6 +87,30 @@ class GringottsClient
             return $response->getBody();
         } catch(TransferException $e) {
             throw new UnableToGetFileException(Uuid::fromString($uuid), $e);
+        }
+    }
+
+    /**
+     * Delete a file from Gringotts.
+     *
+     * @param string $uuid The file uuid
+     * @throws InvalidUuidException
+     * @throws UnableToDeleteFileException
+     */
+    public function delete($uuid)
+    {
+        try {
+            if(!Uuid::isValid($uuid)) {
+                throw new InvalidUuidException($uuid);
+            }
+
+            $response = $this->client->request('DELETE', "/{$uuid}");
+
+            if($response->getStatusCode() != 200) {
+                throw new UnableToDeleteFileException(Uuid::fromString($uuid));
+            }
+        } catch(TransferException $e) {
+            throw new UnableToDeleteFileException(Uuid::fromString($uuid), $e);
         }
     }
 }
