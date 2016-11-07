@@ -2,6 +2,7 @@
 
 namespace Evaneos\Gringotts\SDK;
 
+use Evaneos\Gringotts\SDK\Exception\FileNotFoundException;
 use Evaneos\Gringotts\SDK\Exception\InvalidStoreResponseException;
 use Evaneos\Gringotts\SDK\Exception\InvalidUuidException;
 use Evaneos\Gringotts\SDK\Exception\UnableToDeleteFileException;
@@ -105,6 +106,10 @@ class GringottsClient
             }
 
             $response = $this->client->request('DELETE', "/{$uuid}");
+
+            if($response->getStatusCode() === 404) {
+                throw new FileNotFoundException(Uuid::fromString($uuid));
+            }
 
             if($response->getStatusCode() != 200) {
                 throw new UnableToDeleteFileException(Uuid::fromString($uuid));
