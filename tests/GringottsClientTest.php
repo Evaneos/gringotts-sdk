@@ -2,6 +2,7 @@
 
 namespace Evaneos\Test\Gringotts\SDK;
 
+use Evaneos\Gringotts\SDK\Exception\FileNotFoundException;
 use Evaneos\Gringotts\SDK\Exception\UnableToDeleteFileException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\TransferException;
@@ -39,12 +40,26 @@ class GringottsClientTest extends \PHPUnit_Framework_TestCase
         $this->gringottsClient->setClient(
             new Client([
                 'handler' => new MockHandler([
-                    new Response(404)
+                    new Response(500)
                 ])
             ])
         );
 
         $this->setExpectedException(UnableToDeleteFileException::class);
+        $this->gringottsClient->delete('9F3D2722-D454-41DA-85B7-94A9C6222126');
+    }
+
+    public function testThrowsNotFoundExceptionWhenResponseIs404OnDelete()
+    {
+        $this->gringottsClient->setClient(
+            new Client([
+                'handler' => new MockHandler([
+                    new Response(404)
+                ])
+            ])
+        );
+
+        $this->setExpectedException(FileNotFoundException::class);
         $this->gringottsClient->delete('9F3D2722-D454-41DA-85B7-94A9C6222126');
     }
 
