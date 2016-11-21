@@ -5,9 +5,13 @@ namespace Evaneos\Test\Gringotts\SDK;
 use Evaneos\Gringotts\SDK\Exception\FileNotFoundException;
 use Evaneos\Gringotts\SDK\Exception\UnableToDeleteFileException;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
+use Phake;
+use Psr\Http\Message\RequestInterface;
 use Ramsey\Uuid\Uuid;
 
 class GringottsClientTest extends \PHPUnit_Framework_TestCase
@@ -40,7 +44,7 @@ class GringottsClientTest extends \PHPUnit_Framework_TestCase
         $this->gringottsClient->setClient(
             new Client([
                 'handler' => new MockHandler([
-                    new Response(500)
+                    new ServerException('', Phake::mock(RequestInterface::class), new Response(500))
                 ])
             ])
         );
@@ -54,7 +58,7 @@ class GringottsClientTest extends \PHPUnit_Framework_TestCase
         $this->gringottsClient->setClient(
             new Client([
                 'handler' => new MockHandler([
-                    new Response(404)
+                    new ClientException('', Phake::mock(RequestInterface::class), new Response(404))
                 ])
             ])
         );

@@ -9,6 +9,7 @@ use Evaneos\Gringotts\SDK\Exception\UnableToDeleteFileException;
 use Evaneos\Gringotts\SDK\Exception\UnableToGetFileException;
 use Evaneos\Gringotts\SDK\Exception\UnableToStoreFileException;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\TransferException;
 use Psr\Http\Message\StreamInterface;
 use Ramsey\Uuid\Uuid;
@@ -105,16 +106,14 @@ class GringottsClient
                 throw new InvalidUuidException($uuid);
             }
 
-            $response = $this->client->request('DELETE', "/{$uuid}");
-
-            if($response->getStatusCode() === 404) {
+            $this->client->request('DELETE', "/{$uuid}");
+        } catch(BadResponseException $e) {
+            if($e->getResponse()->getStatusCode() === 404) {
                 throw new FileNotFoundException(Uuid::fromString($uuid));
             }
 
-            if($response->getStatusCode() != 200) {
-                throw new UnableToDeleteFileException(Uuid::fromString($uuid));
-            }
-        } catch(TransferException $e) {
+            throw new UnableToDeleteFileException(Uuid::fromString($uuid), $e);
+        } catch (TransferException $e) {
             throw new UnableToDeleteFileException(Uuid::fromString($uuid), $e);
         }
     }
